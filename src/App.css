@@ -1,0 +1,8 @@
+#root {
+  display: flex;
+  flex-direction: column; /* Stack elements normally */
+  align-items: stretch; /* Remove vertical centering */
+  min-height: auto; /* Prevent forced full height */
+  margin: 0;
+  padding: 0; 
+}
