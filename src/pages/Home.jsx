@@ -2,10 +2,15 @@ import React from "react";
 
 const Home = () => {
   return (
-    <div className="text-center">
-      <h1>Welcome to Fake Product Identification</h1>
+    <div className="home-container">
+      <div className="home-content">
+        <h1>Welcome to Fake Product Identification</h1>
+        <p>
+          Verify product authenticity using blockchain technology.
+        </p>
+      </div>
     </div>
   );
 };
 
-export default Home;  // ✅ Make sure this is 'export default'
+export default Home;
