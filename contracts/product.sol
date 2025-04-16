@@ -58,10 +58,10 @@ contract ProductRegistry {
 
     function sellProductToSeller(string memory _productSN, string memory _sellerId) public {
         require(bytes(products[_productSN].productSN).length > 0, "Product does not exist");
-        require(bytes(sellers[_sellerId].sellerId).length > 0, "Seller does not exist");
         require(products[_productSN].currentOwner == msg.sender, "Only the owner can sell");
         
-        products[_productSN].currentOwner = sellers[_sellerId].sellerAddress;
+        products[_productSN].currentOwner = msg.sender;
+        
         emit ProductSoldToSeller(_productSN, _sellerId);
     }
 

@@ -1,5 +1,5 @@
-var product=artifacts.require('product');
+const ProductRegistry = artifacts.require("ProductRegistry");
 
-module.exports=function(deployer) {
-    deployer.deploy(product); 
-}
+module.exports = async function(deployer) {
+  await deployer.deploy(ProductRegistry);
+};

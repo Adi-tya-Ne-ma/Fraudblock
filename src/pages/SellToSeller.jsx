@@ -1,41 +1,105 @@
 import React, { useState } from "react";
+import { useWeb3 } from "../context/Web3Context";
 
 const SellToSeller = () => {
+  const { web3, contract, account, loading, error: web3Error } = useWeb3();
   const [formData, setFormData] = useState({
-    sellerId: "",
     productSN: "",
-    qrCodeFile: null,
+    sellerId: ""
   });
-  const [verificationResult, setVerificationResult] = useState(null);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleFileChange = (e) => {
-    setFormData({ ...formData, qrCodeFile: e.target.files[0] });
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.qrCodeFile) {
-      // Placeholder for QR verification logic
-      setVerificationResult("Product is Original");
-    } else {
-      setVerificationResult("Tampered Product");
+    setError("");
+    setSuccess("");
+
+    try {
+      if (!contract || !account) {
+        throw new Error("Web3 not initialized");
+      }
+
+      // Simple contract call without any validation
+      const result = await contract.methods
+        .sellProductToSeller(
+          formData.productSN,
+          formData.sellerId
+        )
+        .send({ from: account });
+
+      console.log("Transaction successful:", result);
+      setSuccess("Product successfully transferred to seller!");
+      
+      // Clear form
+      setFormData({
+        productSN: "",
+        sellerId: ""
+      });
+
+    } catch (err) {
+      console.error("Error:", err);
+      setError("Transaction failed. Please try again.");
     }
   };
 
+  if (loading) return <div>Loading...</div>;
+  if (web3Error) return <div>Error: {web3Error}</div>;
+
   return (
-    <div>
+    <div className="container mt-4">
       <h2>Sell Product to Seller</h2>
+      
+      <div className="mb-4">
+        <small className="text-muted">Connected Account:</small>
+        <p className="font-monospace">{account}</p>
+      </div>
+
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
+      )}
+
+      {success && (
+        <div className="alert alert-success" role="alert">
+          {success}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
-        <input type="text" name="sellerId" placeholder="Seller ID" onChange={handleChange} required />
-        <input type="text" name="productSN" placeholder="Product SN" onChange={handleChange} required />
-        <input type="file" accept="image/*" onChange={handleFileChange} required />
-        <button type="submit">Verify & Sell</button>
+        <div className="mb-3">
+          <label className="form-label">Product Serial Number</label>
+          <input
+            type="text"
+            className="form-control"
+            name="productSN"
+            placeholder="Enter product serial number"
+            value={formData.productSN}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Seller ID</label>
+          <input
+            type="text"
+            className="form-control"
+            name="sellerId"
+            placeholder="Enter seller ID"
+            value={formData.sellerId}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <button type="submit" className="btn btn-success">
+          Transfer Product
+        </button>
       </form>
-      {verificationResult && <h3>{verificationResult}</h3>}
     </div>
   );
 };

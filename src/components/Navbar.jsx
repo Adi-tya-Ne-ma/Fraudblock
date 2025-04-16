@@ -30,9 +30,6 @@ const Navbar = () => {
           <Link to="/sell-to-seller" className="btn btn-success m-2">
             Sell Product to Seller
           </Link>
-          <Link to="/add-seller" className="btn btn-primary m-2">
-            Register Seller
-          </Link>
           <Link to="/sell-to-consumer" className="btn btn-primary m-2">
             Sell Product to Consumer
           </Link>
