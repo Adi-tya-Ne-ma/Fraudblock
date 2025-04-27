@@ -1,8 +1,8 @@
 /* General Styling Enhancements */
 body {
-  font-family: "Inter", system-ui, Avenir, Helvetica, Arial, sans-serif;
-  background: linear-gradient(to right, #abcdf0, #d2a2a2);
-  color: white;
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(to right, #f8f9fa, #e9ecef);
+  color: #212529;
   margin: 0;
   padding: 0;
   display: flex;
@@ -10,7 +10,7 @@ body {
   align-items: center;
   justify-content: flex-start;
   min-height: 100vh;
-  padding-top: 80px; /* Added padding to push content below navbar */
+  padding-top: 80px; /* Push content below navbar */
 }
 
 /* Root Container Improvements */
@@ -28,33 +28,58 @@ body {
 
 /* Navbar Styling */
 .navbar {
-  background: rgba(0, 0, 0, 0.8) !important;
+  background: linear-gradient(135deg, #2a3f54, #1e2a38);
   padding: 15px 20px;
-  border-bottom: 2px solid #ffcc00;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+}
+
 .navbar-brand {
   font-size: 1.8rem;
   font-weight: bold;
-  color: #ffcc00 !important;
-}
-.navbar a {
-  color: white !important;
-  font-weight: 600;
+  color: #ffffff;
+  text-decoration: none;
   transition: color 0.3s ease-in-out;
-  margin: 5px;
 }
-.navbar a:hover {
-  color: #ffcc00 !important;
+
+.navbar-brand .brand-highlight {
+  color: #00c1d4;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 15px;
+}
+
+.navbar-link {
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 8px 15px;
+  border-radius: 6px;
+  transition: all 0.3s ease-in-out;
+}
+
+.navbar-link:hover {
+  background: #00c1d4;
+  color: #2a3f54;
+  box-shadow: 0 4px 10px rgba(0, 193, 212, 0.5);
 }
 
 /* Navbar Button Styling */
@@ -75,7 +100,7 @@ body {
   text-align: center;
 }
 .home-content {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.8);
   padding: 40px;
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
@@ -83,48 +108,86 @@ body {
   max-width: 600px;
 }
 h1 {
-  font-size: 2.8rem;
+  font-size: 2.5rem;
+  color: #343a40;
   text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
-  margin-bottom: 40px; /* Added space below page title */
+  margin-bottom: 20px; /* Added space below page title */
+}
+p {
+  font-size: 1.2rem;
+  color: #6c757d;
 }
 
 /* Form Styling */
 form {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 20px;
+  background: #ffffff;
+  padding: 30px;
   border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 15px;
   margin-top: 40px; /* Added space to push form down */
+  width: 100%;
+  max-width: 500px;
+}
+label {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 5px;
+  display: block;
 }
 input, select {
-  width: 90%;
+  width: 100%;
   padding: 12px;
   margin: 8px 0;
-  border: none;
+  border: 1px solid #ced4da;
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.2);
-  color: black; /* Changed text color for better contrast */
-  text-align: center;
-  font-weight: bold;
+  background: #f8f9fa;
+  color: #495057; /* Changed text color for better contrast */
+  font-size: 1rem;
+}
+input:focus, select:focus {
+  outline: none;
+  border-color: #ffc107;
+  box-shadow: 0 0 5px rgba(255, 193, 7, 0.5);
 }
 button {
-  background: #ffcc00;
-  color: black;
-  font-size: 16px;
+  background: #ffc107;
+  color: #212529;
+  font-size: 1rem;
   font-weight: bold;
   padding: 12px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.3s ease-in-out;
-  width: 90%;
+  width: 100%;
 }
 button:hover {
-  background: #e6b800;
+  background: #e0a800;
+}
+
+/* Alerts */
+.alert {
+  width: 100%;
+  max-width: 500px;
+  padding: 15px;
+  border-radius: 6px;
+  margin: 10px 0;
+  font-size: 1rem;
+}
+.alert-danger {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+.alert-success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
 }
 
 /* Responsive Design */
@@ -146,6 +209,13 @@ button:hover {
     margin-top: 50px; /* Adjusted for better spacing on smaller screens */
   }
   h1 {
-    font-size: 2.2rem;
+    font-size: 2rem;
   }
+}
+
+/* Highlight Animation */
+
+.brand-highlight {
+  color: #00c1d4;
+  animation: highlight-shimmer 2s infinite ease-in-out;
 }

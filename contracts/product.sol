@@ -9,21 +9,17 @@ contract ProductRegistry {
         string productName;
         uint256 productPrice;
         address currentOwner;
+        string sellerId;
+        string consumerId;
         bool isAuthentic;
     }
 
-    struct Seller {
-        string sellerId;
-        string sellerSN;
-        address sellerAddress;
-    }
-
     mapping(string => Product) public products;
-    mapping(string => Seller) public sellers;
 
     event ProductAdded(string productSN, string manufacturerId);
-    event ProductSoldToSeller(string productSN, string sellerId);
-    event ProductSoldToConsumer(string productSN, string consumerId);
+    event ProductSoldToSeller(string productSN, string sellerId, address sellerAddress, uint256 price);
+    event ProductSoldToConsumer(string productSN, string consumerId, address consumerAddress, uint256 price);
+    event DebugEvent(string message, address currentOwner, address sender, uint256 value);
 
     function addProduct(
         string memory _manufacturerId,
@@ -40,41 +36,46 @@ contract ProductRegistry {
             productName: _productName,
             productPrice: _productPrice,
             currentOwner: msg.sender,
+            sellerId: "",
+            consumerId: "",
             isAuthentic: true
         });
 
         emit ProductAdded(_productSN, _manufacturerId);
     }
 
-    function addSeller(string memory _sellerId, string memory _sellerSN) public {
-        require(bytes(sellers[_sellerId].sellerId).length == 0, "Seller already exists");
+    function sellProductToSeller(string memory _productSN, string memory _sellerId) public payable {
+        Product storage product = products[_productSN];
+        require(bytes(product.productSN).length > 0, "Product does not exist");
+        require(product.currentOwner == msg.sender, "Only the owner can sell");
+        require(msg.value == product.productPrice, "Incorrect ETH amount sent");
 
-        sellers[_sellerId] = Seller({
-            sellerId: _sellerId,
-            sellerSN: _sellerSN,
-            sellerAddress: msg.sender
-        });
+        product.sellerId = _sellerId;
+        product.currentOwner = msg.sender; // Update the owner to the seller
+
+        payable(msg.sender).transfer(msg.value); // Transfer ETH to the manufacturer
+        emit ProductSoldToSeller(_productSN, _sellerId, msg.sender, msg.value);
     }
 
-    function sellProductToSeller(string memory _productSN, string memory _sellerId) public {
-        require(bytes(products[_productSN].productSN).length > 0, "Product does not exist");
-        require(products[_productSN].currentOwner == msg.sender, "Only the owner can sell");
-        
-        products[_productSN].currentOwner = msg.sender;
-        
-        emit ProductSoldToSeller(_productSN, _sellerId);
+    function sellProductToConsumer(string memory _productSN, string memory _consumerId) public payable {
+        Product storage product = products[_productSN];
+        require(bytes(product.productSN).length > 0, "Product does not exist");
+        require(product.currentOwner == msg.sender, "Only the owner can sell");
+        require(msg.value == product.productPrice, "Incorrect ETH amount sent");
+
+        emit DebugEvent("Before updating consumerId and currentOwner", product.currentOwner, msg.sender, msg.value);
+
+        product.consumerId = _consumerId;
+        product.currentOwner = msg.sender; // Update the owner to the consumer's address
+
+        emit DebugEvent("After updating consumerId and currentOwner", product.currentOwner, msg.sender, msg.value);
+
+        payable(product.currentOwner).transfer(msg.value); // Transfer ETH to the seller
+        emit ProductSoldToConsumer(_productSN, _consumerId, msg.sender, msg.value);
     }
 
-    function sellProductToConsumer(string memory _productSN, string memory _consumerId) public {
+    function verifyProduct(string memory _productSN) public view returns (Product memory) {
         require(bytes(products[_productSN].productSN).length > 0, "Product does not exist");
-        require(products[_productSN].currentOwner == msg.sender, "Only the owner can sell");
-        
-        products[_productSN].currentOwner = address(0); // Consumer holds it off-chain
-        emit ProductSoldToConsumer(_productSN, _consumerId);
-    }
-
-    function verifyProduct(string memory _productSN) public view returns (bool) {
-        require(bytes(products[_productSN].productSN).length > 0, "Product does not exist");
-        return products[_productSN].isAuthentic;
+        return products[_productSN];
     }
 }

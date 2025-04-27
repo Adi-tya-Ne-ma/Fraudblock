@@ -5,7 +5,7 @@ const SellToConsumer = () => {
   const { web3, contract, account, loading, error: web3Error } = useWeb3();
   const [formData, setFormData] = useState({
     productSN: "",
-    consumerId: ""
+    consumerId: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -16,34 +16,27 @@ const SellToConsumer = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
-
     try {
-      if (!contract || !account) {
-        throw new Error("Web3 not initialized");
+      if (!formData.productSN || !formData.consumerId || !formData.productPrice) {
+        setError("All fields are required");
+        return;
       }
 
-      // Call contract method to sell to consumer
-      const result = await contract.methods
-        .sellProductToConsumer(
-          formData.productSN,
-          formData.consumerId
-        )
-        .send({ from: account });
+      // Ensure the product price is converted to Wei
+      const priceInWei = web3.utils.toWei(formData.productPrice, "ether");
 
-      console.log("Transaction successful:", result);
-      setSuccess("Product successfully sold to consumer!");
-      
-      // Clear form
-      setFormData({
-        productSN: "",
-        consumerId: ""
-      });
+      await contract.methods
+        .sellProductToConsumer(formData.productSN, formData.consumerId)
+        .send({
+          from: account, // Seller's account
+          value: priceInWei, // ETH to be sent
+        });
 
+      setSuccess("Product sold to consumer successfully!");
+      setError(""); // Clear any previous errors
     } catch (err) {
-      console.error("Error:", err);
-      setError("Transaction failed. Please try again.");
+      setError("Transaction failed: " + err.message);
+      setSuccess(""); // Clear any previous success messages
     }
   };
 
@@ -53,7 +46,7 @@ const SellToConsumer = () => {
   return (
     <div className="container mt-4">
       <h2>Sell Product to Consumer</h2>
-      
+
       <div className="mb-4">
         <small className="text-muted">Connected Account (Seller):</small>
         <p className="font-monospace">{account}</p>
@@ -71,51 +64,59 @@ const SellToConsumer = () => {
         </div>
       )}
 
-      <div className="card mb-4">
+      {/* <div className="card mb-4">
         <div className="card-body">
           <h5 className="card-title">Instructions</h5>
           <ul>
-            <li>Enter the Product Serial Number of the product you want to sell</li>
+            <li>
+              Enter the Product Serial Number of the product you want to sell
+            </li>
             <li>Enter a Consumer ID for tracking purposes</li>
             <li>Make sure you are the current owner of the product</li>
           </ul>
         </div>
-      </div>
+      </div> */}
 
       <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label className="form-label">Product Serial Number</label>
+        <div className="form-group">
+          <label htmlFor="productSN">Product Serial Number</label>
           <input
+            id="productSN"
             type="text"
-            className="form-control"
-            name="productSN"
-            placeholder="Enter product serial number"
+            placeholder="Enter Product Serial Number"
             value={formData.productSN}
-            onChange={handleChange}
-            required
+            onChange={(e) => setFormData({ ...formData, productSN: e.target.value })}
           />
         </div>
-        <div className="mb-3">
-          <label className="form-label">Consumer ID</label>
+        <div className="form-group">
+          <label htmlFor="consumerId">Consumer Address</label>
           <input
+            id="consumerId"
             type="text"
-            className="form-control"
-            name="consumerId"
-            placeholder="Enter consumer ID"
+            placeholder="Enter Consumer Address"
             value={formData.consumerId}
-            onChange={handleChange}
-            required
+            onChange={(e) => setFormData({ ...formData, consumerId: e.target.value })}
           />
         </div>
-        <button type="submit" className="btn btn-primary">
-          Sell to Consumer
-        </button>
+        <div className="form-group">
+          <label htmlFor="productPrice">Product Price (ETH)</label>
+          <input
+            id="productPrice"
+            type="text"
+            placeholder="Enter Product Price"
+            value={formData.productPrice}
+            onChange={(e) =>
+              setFormData({ ...formData, productPrice: e.target.value })
+            }
+          />
+        </div>
+        <button type="submit">Sell to Consumer</button>
       </form>
 
       <div className="mt-4">
         <small className="text-muted">
-          Note: After selling to a consumer, the product ownership will be transferred 
-          and the transaction will be recorded on the blockchain.
+          Note: After selling to a consumer, the product ownership will be
+          transferred and the transaction will be recorded on the blockchain.
         </small>
       </div>
     </div>

@@ -5,7 +5,8 @@ const SellToSeller = () => {
   const { web3, contract, account, loading, error: web3Error } = useWeb3();
   const [formData, setFormData] = useState({
     productSN: "",
-    sellerId: ""
+    sellerId: "",
+    productPrice: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -16,34 +17,24 @@ const SellToSeller = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
-
     try {
-      if (!contract || !account) {
-        throw new Error("Web3 not initialized");
+      if (!formData.productSN || !formData.sellerId || !formData.productPrice) {
+        setError("All fields are required");
+        return;
       }
 
-      // Simple contract call without any validation
-      const result = await contract.methods
-        .sellProductToSeller(
-          formData.productSN,
-          formData.sellerId
-        )
-        .send({ from: account });
+      await contract.methods
+        .sellProductToSeller(formData.productSN, formData.sellerId)
+        .send({
+          from: account, // Manufacturer's account
+          value: web3.utils.toWei(formData.productPrice, "ether"), // Convert ETH to Wei
+        });
 
-      console.log("Transaction successful:", result);
-      setSuccess("Product successfully transferred to seller!");
-      
-      // Clear form
-      setFormData({
-        productSN: "",
-        sellerId: ""
-      });
-
+      setSuccess("Product sold to seller successfully!");
+      setError(""); // Clear any previous errors
     } catch (err) {
-      console.error("Error:", err);
-      setError("Transaction failed. Please try again.");
+      setError("Transaction failed: " + err.message);
+      setSuccess(""); // Clear any previous success messages
     }
   };
 
@@ -53,9 +44,9 @@ const SellToSeller = () => {
   return (
     <div className="container mt-4">
       <h2>Sell Product to Seller</h2>
-      
+
       <div className="mb-4">
-        <small className="text-muted">Connected Account:</small>
+        <small className="text-muted">Connected Account (Manufacturer):</small>
         <p className="font-monospace">{account}</p>
       </div>
 
@@ -72,33 +63,43 @@ const SellToSeller = () => {
       )}
 
       <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label className="form-label">Product Serial Number</label>
+        <div className="form-group">
+          <label htmlFor="productSN">Product Serial Number</label>
           <input
+            id="productSN"
             type="text"
-            className="form-control"
-            name="productSN"
-            placeholder="Enter product serial number"
+            placeholder="Enter Product Serial Number"
             value={formData.productSN}
-            onChange={handleChange}
-            required
+            onChange={(e) =>
+              setFormData({ ...formData, productSN: e.target.value })
+            }
           />
         </div>
-        <div className="mb-3">
-          <label className="form-label">Seller ID</label>
+        <div className="form-group">
+          <label htmlFor="sellerId">Seller Address</label>
           <input
+            id="sellerId"
             type="text"
-            className="form-control"
-            name="sellerId"
-            placeholder="Enter seller ID"
+            placeholder="Enter Seller Address"
             value={formData.sellerId}
-            onChange={handleChange}
-            required
+            onChange={(e) =>
+              setFormData({ ...formData, sellerId: e.target.value })
+            }
           />
         </div>
-        <button type="submit" className="btn btn-success">
-          Transfer Product
-        </button>
+        <div className="form-group">
+          <label htmlFor="productPrice">Product Price (ETH)</label>
+          <input
+            id="productPrice"
+            type="text"
+            placeholder="Enter Product Price"
+            value={formData.productPrice}
+            onChange={(e) =>
+              setFormData({ ...formData, productPrice: e.target.value })
+            }
+          />
+        </div>
+        <button type="submit">Sell to Seller</button>
       </form>
     </div>
   );

@@ -6,7 +6,7 @@ const Home = () => {
       <div className="home-content">
         <h1>Welcome to Fake Product Identification</h1>
         <p>
-          Verify product authenticity using blockchain technology.
+          Verify product authenticity using blockchain technology. Track the lifecycle of products from manufacturers to consumers.
         </p>
       </div>
     </div>

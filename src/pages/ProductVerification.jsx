@@ -73,33 +73,21 @@ const ProductVerification = () => {
       const qrData = await readQRFile(formData.qrFile);
 
       // Verify if the entered product SN matches the QR code
-      if (qrData.productSN !== formData.productSN) {
+      if (qrData.productId !== web3.utils.keccak256(formData.productSN)) {
         setVerificationResult({
           isAuthentic: false,
-          message: "Product Serial Number does not match QR code data"
+          message: "Tampered Product",
         });
         return;
       }
 
-      // Get product details from blockchain
-      const productDetails = await contract.methods
-        .products(formData.productSN)
-        .call();
-
-      // Verify product authenticity
-      const isAuthentic = await contract.methods
-        .verifyProduct(formData.productSN)
-        .call();
-
-      // Check if the product exists and verify all details
-      if (!productDetails.productSN || productDetails.productSN === "") {
-        throw new Error("Product not found in blockchain");
-      }
+      // Fetch product details from the blockchain
+      const productDetails = await contract.methods.products(formData.productSN).call();
 
       setVerificationResult({
-        isAuthentic: isAuthentic,
+        isAuthentic: true,
         details: productDetails,
-        message: isAuthentic ? "Verified Product" : "Tampered Product"
+        message: "Verified Product",
       });
 
     } catch (err) {
@@ -121,46 +109,26 @@ const ProductVerification = () => {
         </div>
       )}
 
-      <div className="card mb-4">
-        <div className="card-body">
-          <h5 className="card-title">Instructions</h5>
-          <ul>
-            <li>Upload the product QR code image (PNG format)</li>
-            <li>Enter the product serial number</li>
-            <li>Click verify to check product authenticity</li>
-          </ul>
-        </div>
-      </div>
-
       <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label className="form-label">Upload QR Code (PNG only)</label>
+        <div className="form-group">
+          <label htmlFor="productSN">Product Serial Number</label>
           <input
-            type="file"
-            className="form-control"
-            name="qrFile"
-            accept="image/png"
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Product Serial Number</label>
-          <input
+            id="productSN"
             type="text"
-            className="form-control"
-            name="productSN"
-            placeholder="Enter product serial number"
+            placeholder="Enter Product Serial Number"
             value={formData.productSN}
-            onChange={handleChange}
-            required
+            onChange={(e) => setFormData({ ...formData, productSN: e.target.value })}
           />
         </div>
-
-        <button type="submit" className="btn btn-success">
-          Verify Product
-        </button>
+        <div className="form-group">
+          <label htmlFor="qrFile">Upload QR Code</label>
+          <input
+            id="qrFile"
+            type="file"
+            onChange={(e) => setFormData({ ...formData, qrFile: e.target.files[0] })}
+          />
+        </div>
+        <button type="submit">Verify Product</button>
       </form>
 
       {verificationResult && (
