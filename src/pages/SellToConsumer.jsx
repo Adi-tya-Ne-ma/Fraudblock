@@ -6,6 +6,8 @@ const SellToConsumer = () => {
   const [formData, setFormData] = useState({
     productSN: "",
     consumerId: "",
+    consumerAddress: "",
+    productPrice: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -26,7 +28,7 @@ const SellToConsumer = () => {
       const priceInWei = web3.utils.toWei(formData.productPrice, "ether");
 
       await contract.methods
-        .sellProductToConsumer(formData.productSN, formData.consumerId)
+        .sellProductToConsumer(formData.productSN, formData.consumerId, formData.consumerAddress)
         .send({
           from: account, // Seller's account
           value: priceInWei, // ETH to be sent
@@ -89,13 +91,23 @@ const SellToConsumer = () => {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="consumerId">Consumer Address</label>
+          <label htmlFor="consumerId">Consumer ID</label>
           <input
             id="consumerId"
             type="text"
-            placeholder="Enter Consumer Address"
+            placeholder="Enter Consumer ID"
             value={formData.consumerId}
             onChange={(e) => setFormData({ ...formData, consumerId: e.target.value })}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="consumerAddress">Consumer Address</label>
+          <input
+            id="consumerAddress"
+            type="text"
+            placeholder="Enter Consumer Ethereum Address"
+            value={formData.consumerAddress}
+            onChange={(e) => setFormData({ ...formData, consumerAddress: e.target.value })}
           />
         </div>
         <div className="form-group">

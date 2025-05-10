@@ -44,34 +44,32 @@ contract ProductRegistry {
         emit ProductAdded(_productSN, _manufacturerId);
     }
 
-    function sellProductToSeller(string memory _productSN, string memory _sellerId) public payable {
+    function sellProductToSeller(string memory _productSN, string memory _sellerId, address _sellerAddress) public payable {
         Product storage product = products[_productSN];
-        require(bytes(product.productSN).length > 0, "Product does not exist");
+        require(bytes(product.productSN).length > 0, "Product does not exist"); 
         require(product.currentOwner == msg.sender, "Only the owner can sell");
         require(msg.value == product.productPrice, "Incorrect ETH amount sent");
 
         product.sellerId = _sellerId;
-        product.currentOwner = msg.sender; // Update the owner to the seller
+        product.currentOwner = _sellerAddress; // Update to seller's address
 
-        payable(msg.sender).transfer(msg.value); // Transfer ETH to the manufacturer
-        emit ProductSoldToSeller(_productSN, _sellerId, msg.sender, msg.value);
+        // Transfer ETH to the previous owner (manufacturer)
+        payable(msg.sender).transfer(msg.value);
+        emit ProductSoldToSeller(_productSN, _sellerId, _sellerAddress, msg.value);
     }
 
-    function sellProductToConsumer(string memory _productSN, string memory _consumerId) public payable {
+    function sellProductToConsumer(string memory _productSN, string memory _consumerId, address _consumerAddress) public payable {
         Product storage product = products[_productSN];
         require(bytes(product.productSN).length > 0, "Product does not exist");
         require(product.currentOwner == msg.sender, "Only the owner can sell");
         require(msg.value == product.productPrice, "Incorrect ETH amount sent");
 
-        emit DebugEvent("Before updating consumerId and currentOwner", product.currentOwner, msg.sender, msg.value);
-
         product.consumerId = _consumerId;
-        product.currentOwner = msg.sender; // Update the owner to the consumer's address
+        product.currentOwner = _consumerAddress; // Update to consumer's address
 
-        emit DebugEvent("After updating consumerId and currentOwner", product.currentOwner, msg.sender, msg.value);
-
-        payable(product.currentOwner).transfer(msg.value); // Transfer ETH to the seller
-        emit ProductSoldToConsumer(_productSN, _consumerId, msg.sender, msg.value);
+        // Transfer ETH to the previous owner (seller)
+        payable(msg.sender).transfer(msg.value);
+        emit ProductSoldToConsumer(_productSN, _consumerId, _consumerAddress, msg.value);
     }
 
     function verifyProduct(string memory _productSN) public view returns (Product memory) {

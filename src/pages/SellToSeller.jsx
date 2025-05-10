@@ -6,6 +6,7 @@ const SellToSeller = () => {
   const [formData, setFormData] = useState({
     productSN: "",
     sellerId: "",
+    sellerAddress: "", // Add this
     productPrice: "",
   });
   const [error, setError] = useState("");
@@ -18,13 +19,13 @@ const SellToSeller = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (!formData.productSN || !formData.sellerId || !formData.productPrice) {
+      if (!formData.productSN || !formData.sellerId || !formData.sellerAddress || !formData.productPrice) {
         setError("All fields are required");
         return;
       }
 
       await contract.methods
-        .sellProductToSeller(formData.productSN, formData.sellerId)
+        .sellProductToSeller(formData.productSN, formData.sellerId, formData.sellerAddress)
         .send({
           from: account, // Manufacturer's account
           value: web3.utils.toWei(formData.productPrice, "ether"), // Convert ETH to Wei
@@ -76,14 +77,26 @@ const SellToSeller = () => {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="sellerId">Seller Address</label>
+          <label htmlFor="sellerId">Seller ID</label>
           <input
             id="sellerId"
             type="text"
-            placeholder="Enter Seller Address"
+            placeholder="Enter Seller ID"
             value={formData.sellerId}
             onChange={(e) =>
               setFormData({ ...formData, sellerId: e.target.value })
+            }
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="sellerAddress">Seller Address</label>
+          <input
+            id="sellerAddress"
+            type="text"
+            placeholder="Enter Seller Ethereum Address"
+            value={formData.sellerAddress}
+            onChange={(e) =>
+              setFormData({ ...formData, sellerAddress: e.target.value })
             }
           />
         </div>
